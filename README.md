@@ -1,43 +1,50 @@
-Simulated Web Workers Interface
-==========================
+# Worker.js
 
-Web Workers for IEs and Mobile Safari.
+Polyfill for HTML5 [Dedicated] Web Workers.
 
-Auther: Timothy Chien &lt;timdream@gmail.com&gt;
+Originally forked from the abandoned [timdream/simworker](https://github.com/timdream/simworker).
+
 
 ## What it does
 
-This script creates a Worker interface for browsers without it. When you create 
-a instance of it, it opens up an IFRAME, prepare the necessary functions, inject 
-your script into it, and listened to `worker.postMessage()` issued and process
-`onmessage` event just like a native Worker.
+This script creates a `Worker` interface for browsers without it. When you create 
+an instance of it, it opens up an `iframe`, prepares the necessary functions, injects 
+your script into it, listens for `worker.postMessage(...)` signals, and responds to trigger
+`onmessage` events just like a native Worker would.
+
 
 ## What it doesn't do
 
-The script doesn't do the magic of taking the task background. Executions still 
-block UI, and like any other foreground functions they are subjected to runaway 
-timer imposed by the browser. Due to the reason addressed above, not all worker 
-programs are suitable to use simulated worker.
+The script doesn't do the magic of making the task execute in the background asynchronously.
+Executions still block the UI thread and, like any other foreground functions, they are subjected
+to runaway script timer restrictions imposed by the browser. Due to the reason addressed above, not
+all programs that work well with native `Worker` instances are suitable for use with the
+polyfilled `Worker` instances.
 
-For a long complication, you could modify the loop using 
-`setTimeout(function () { ... }, 0);` to prevent UI blocking.
+For a long-running calculation, you could modify the loop using `setTimeout(function() { ... }, 0);`
+to prevent elongated periods of UI blocking.
 
-Please check the testcases' code for example.
+Please check the tests for more examples.
+
 
 ## Usage
 
-Same as the native Web Workers, except a few things to note:
- 
-1. Before initializing, set the path of IFRAME page that used to crate the 
-   worker scope at `window.Worker.iframeURI`.
-2. The path of script for the native Web Workers is relative to the document
-   URL. Set `window.Worker.baseURI` to tell IFRAME where to find your script.
-3. Native Web Workers will be recycled automatically, simulated Worker lived
-   in IFRAME that can only be removed by executing `worker.terminate()` 
-   explicitly when you finish using Worker.
-4. IEs doesn't allow overwritten of `window.postMessage()`, so for a worker
-   script to work in both native worker and simulated in IE, create a new
-   variable at the very top of the worker script that points to the correct 
-   function:
-   `var send = (typeof workerPostMessage !== 'undefined')?workerPostMessage:postMessage;`
-   and use `send()` instead of `postMessage()` within the script.
+Same as the native Web Workers, with a few exceptions:
+
+ 1. The path of script for the native Web Workers is relative to the executing script rather than
+    the document/`base` URL. The polyfill will attempt to detect this automatically using a handful
+    of various techniques but it is unfortunately not very easy to do in older browsers and/or after
+    the initial page render.  If you want to guarantee that this path works correctly, you will need
+    to manually specify it by setting `window.Worker.baseURI` to tell the `iframe` where to locate
+    your worker script.
+ 2. Native Web Workers will be recycled automatically. The polyfilled `Worker` instances, however,
+    live within an `iframe`. The `iframe` itself will not be cleaned up, so you _**must**_ do so
+    by explicitly executing `worker.terminate();` when you are done with your `Worker`.
+
+
+## Support
+ - IE9
+ - IE8
+ - IE7 and below, _**if**_ you shim in support for `JSON.stringify` and `JSON.parse`
+ - iOS Safari 4.0+
+
