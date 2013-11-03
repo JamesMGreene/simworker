@@ -33,18 +33,19 @@ Same as the native Web Workers, with a few exceptions:
 
  1. The path of script for the native Web Workers is relative to the executing script rather than
     the document/`base` URL. The polyfill will attempt to detect this automatically using a handful
-    of various techniques but it is unfortunately not very easy to do in older browsers and/or after
-    the initial page render.  If you want to guarantee that this path works correctly, you will need
-    to manually specify it by setting `window.Worker.baseURI` to tell the `iframe` where to locate
-    your worker script.
+    of various techniques but it is, unfortunately, rarely possible to do in older browsers. If you
+    want to guarantee that this path works correctly, you will need to manually specify it by
+    setting `window.Worker.baseURI` to tell the `iframe` where to locate your worker script.
  2. Native Web Workers will be recycled automatically. The polyfilled `Worker` instances, however,
     live within an `iframe`. The `iframe` itself will not be cleaned up, so you _**must**_ do so
     by explicitly executing `worker.terminate();` when you are done with your `Worker`.
+ 3. If you want to use the `btoa` and `atob` encoding methods, you will need to polyfill support
+    before creating your `Worker` instances, e.g. with [Base64.js](https://github.com/davidchambers/Base64.js)).
 
 
 ## Support
  - IE9
  - IE8
- - IE7 and below, _**if**_ you shim in support for `JSON.stringify` and `JSON.parse`
+ - IE7 and below, _**if**_ you polyfill support for `JSON.stringify` and `JSON.parse`, e.g. with [JSON2](https://github.com/douglascrockford/JSON-js))
  - iOS Safari 4.0+
 
