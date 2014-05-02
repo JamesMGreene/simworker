@@ -352,7 +352,7 @@
           workerScript = null;
 
           /* Request any queued messages from `parent`, then "open for business" */
-          self.__DedicatedWorkerGlobalScope__.window.frameElement._ready = true;
+          self.__DedicatedWorkerGlobalScope__.window.frameElement._ready();
         };
         self.__DedicatedWorkerGlobalScope__.document.body.appendChild(workerScript);
       };
@@ -492,6 +492,8 @@
         doc.close();
 
         worker._privates.frame = iframe;
+
+        // ...?
       }
     }
 
@@ -573,7 +575,7 @@
           origin: "",
           lastEventId: ""
         };
-        if (this._privates.frame._ready === true) {
+        if (this._privates.frame._isReady === true) {
           var dedicatedWorkerGlobalScope = getFrameWindow(this._privates.frame, window);
           if (dedicatedWorkerGlobalScope && dedicatedWorkerGlobalScope.dispatchEvent) {
             dedicatedWorkerGlobalScope.dispatchEvent(messageEventData);
